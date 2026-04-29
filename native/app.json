@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "MedApp",
+    "slug": "medapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": ["android"],
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": false },
+    "android": { "adaptiveIcon": { "backgroundColor": "#D6D9F5" } }
+  }
+}
