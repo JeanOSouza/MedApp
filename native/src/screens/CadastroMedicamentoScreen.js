@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Importações do projeto
 import api from "../../service/api";
 import { colors, spacing } from "../theme";
 import Header from "../components/Header";
@@ -21,14 +20,30 @@ import Button from "../components/Button";
 export default function CadastroMedicamentoScreen({ navigation }) {
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [uso, setUso] = useState(""); // Ex: 500mg
-  const [horario, setHorario] = useState(""); // Ex: 08:00
-  const [tempo, setTempo] = useState(""); // Ex: 8 em 8 horas
+  const [uso, setUso] = useState("");
+  const [horario, setHorario] = useState("");
+  const [tempo, setTempo] = useState("");
   const [dataInicio, setDataInicio] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // --- MÁSCARA DE DATA (DD/MM/AAAA) ---
+  const handleDataChange = (text) => {
+    let val = text.replace(/\D/g, "");
+    if (val.length > 8) val = val.substring(0, 8);
+    if (val.length > 4) val = val.replace(/^(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
+    else if (val.length > 2) val = val.replace(/^(\d{2})(\d{0,2})/, "$1/$2");
+    setDataInicio(val);
+  };
+
+  // --- MÁSCARA DE HORA (HH:MM) ---
+  const handleHorarioChange = (text) => {
+    let val = text.replace(/\D/g, "");
+    if (val.length > 4) val = val.substring(0, 4);
+    if (val.length > 2) val = val.replace(/^(\d{2})(\d{0,2})/, "$1:$2");
+    setHorario(val);
+  };
+
   async function handleSalvar() {
-    // 1. Validação básica
     if (!nome || !horario || !dataInicio) {
       Alert.alert("Erro", "Nome, Horário e Data de Início são obrigatórios.");
       return;
@@ -37,38 +52,35 @@ export default function CadastroMedicamentoScreen({ navigation }) {
     setLoading(true);
 
     try {
-      // 2. Recuperar o Token do usuário logado
       const token = await AsyncStorage.getItem("token");
-
       if (!token) {
-        Alert.alert("Erro", "Sessão expirada. Faça login novamente.");
+        Alert.alert("Erro", "Sessão expirada.");
         navigation.navigate("Login");
         return;
       }
 
-      // 3. Enviar para o backend
+      // --- CONVERSÃO DA DATA PARA O BANCO (AAAA-MM-DD) ---
+      const [dia, mes, ano] = dataInicio.split("/");
+      const dataParaBanco = `${ano}-${mes}-${dia}`;
+
       const response = await api.post(
         "/medicamentos",
         {
           nome_medicacao: nome,
           dosagem: uso,
           descricao: descricao,
-          inicio_medicacao: dataInicio,
-          // Se o seu backend exigir horário e frequência separados, envie aqui
+          inicio_medicacao: dataParaBanco,
+          horario_medicacao: horario, // Enviando como HH:MM
+          frequencia: tempo,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` }, // Envia o token de segurança
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       Alert.alert("Sucesso", "Medicamento cadastrado com sucesso!");
-      navigation.goBack(); // Volta para a Home/Listagem
+      navigation.goBack();
     } catch (error) {
-      console.log(
-        "Erro ao salvar medicamento:",
-        error.response?.data || error.message,
-      );
-      Alert.alert("Erro", "Não foi possível salvar o medicamento.");
+      console.log("Erro:", error.response?.data || error.message);
+      Alert.alert("Erro", "Não foi possível salvar.");
     } finally {
       setLoading(false);
     }
@@ -94,13 +106,6 @@ export default function CadastroMedicamentoScreen({ navigation }) {
         />
 
         <Input
-          label="Descrição (Opcional):"
-          value={descricao}
-          onChangeText={setDescricao}
-          placeholder="Ex: Tomar após o almoço"
-        />
-
-        <Input
           label="Dosagem (Uso):"
           value={uso}
           onChangeText={setUso}
@@ -108,10 +113,12 @@ export default function CadastroMedicamentoScreen({ navigation }) {
         />
 
         <Input
-          label="Horário da dosagem:"
+          label="Horário da primeira dose:"
           value={horario}
-          onChangeText={setHorario}
+          onChangeText={handleHorarioChange}
           placeholder="Ex: 08:00"
+          keyboardType="numeric"
+          maxLength={5}
         />
 
         <Input
@@ -124,9 +131,18 @@ export default function CadastroMedicamentoScreen({ navigation }) {
         <Input
           label="Data de início:"
           value={dataInicio}
-          onChangeText={setDataInicio}
+          onChangeText={handleDataChange}
           placeholder="DD/MM/AAAA"
           keyboardType="numeric"
+          maxLength={10}
+        />
+
+        <Input
+          label="Descrição (Opcional):"
+          value={descricao}
+          onChangeText={setDescricao}
+          placeholder="Ex: Tomar após o almoço"
+          multiline
         />
 
         {loading ? (

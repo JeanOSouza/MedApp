@@ -4,18 +4,17 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   TextInput,
   Alert,
-  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, radius } from "../theme";
 import Header from "../components/Header";
-import ScreenWrapper from "../components/ScreenWrapper"
+import ScreenWrapper from "../components/ScreenWrapper";
 import api from "../../service/api";
 
-function MedCard({ med, onDelete, onCheck }) {
+// --- COMPONENTE DO CARD ---
+function MedCard({ med, onDelete, onCheck, proximaDose }) {
   return (
     <View style={[styles.card, med.status === "atrasado" && styles.cardHL]}>
       <View style={styles.cardRow}>
@@ -25,9 +24,24 @@ function MedCard({ med, onDelete, onCheck }) {
 
         <View style={styles.info}>
           <Text style={styles.medName}>{med.nome_medicacao}</Text>
-          <Text style={styles.medName}>{med.dosagem}</Text>
-          <Text style={styles.medDesc}>{med.descricao}</Text>
-          {/* <Text style={styles.medDesc}>{med.frequencia}</Text>*/}
+          <Text style={styles.medDesc}>
+            {med.dosagem} - {med.descricao}
+          </Text>
+
+          {/* Exibindo a Próxima Dose calculada */}
+          <Text
+            style={[
+              styles.medDesc,
+              {
+                fontWeight: "500",
+                color: "#255803",
+                textAlign: "left",
+              },
+            ]}
+          >
+            Próxima: {proximaDose}
+          </Text>
+
           {med.status === "atrasado" && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>Atrasado</Text>
@@ -55,39 +69,24 @@ function MedCard({ med, onDelete, onCheck }) {
   );
 }
 
-// Função que busca os dados no banco (Sequelize/SQLite)
- const atualizarTudo = async () => {
-    console.log("Atualizando dados do app...");
-    await Promise.all([
-      loadMedicacoes(),
-      loadHistorico()
-    ]);
-  };
-
 function Tomados({ hist, med }) {
   const dataObjeto = hist.data_tomada ? new Date(hist.data_tomada) : new Date();
-  const dataValida = !isNaN(dataObjeto.getTime());
-  const hora = dataValida
-    ? dataObjeto.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "--:--";
-  const dia = dataValida
-    ? dataObjeto.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-      })
-    : "00/00";
+  const hora = dataObjeto.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const dia = dataObjeto.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  });
+
   return (
     <View style={styles.card}>
-      <View style={styles.cardRow}>
-        <View style={styles.info}>
-          <Text style={styles.medName}>{med.nome_medicacao}</Text>
-          <Text style={styles.medDesc}>
-            Tomado em : {dia} às {hora}
-          </Text>
-        </View>
+      <View style={styles.info}>
+        <Text style={styles.medName}>{med.nome_medicacao}</Text>
+        <Text style={styles.medDesc}>
+          Tomado em: {dia} às {hora}
+        </Text>
       </View>
     </View>
   );
@@ -98,96 +97,106 @@ export default function HomeScreen() {
   const [search, setSearch] = useState("");
   const [meds, setMeds] = useState([]);
   const [hist, setHist] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const getProximaDose = (medicamento) => {
+    if (!medicamento || !medicamento.frequencia) {
+      return "---";
+    }
+
+    // 1. Procurar a última vez que este medicamento aparece no histórico
+    // Assumindo que o histórico vem ordenado do mais recente para o mais antigo
+    const ultimaTomada = hist.find(
+      (h) => String(h.id_medicacao) === String(medicamento.id_medicacao),
+    );
+
+    let dataReferencia;
+
+    if (ultimaTomada && ultimaTomada.data_tomada) {
+      // Se encontrou no histórico, calcula a partir da data que foi tomado
+      dataReferencia = new Date(ultimaTomada.data_tomada);
+    } else if (medicamento.inicio_medicacao) {
+      // Se nunca foi tomado, usa a data de início definida no cadastro
+      dataReferencia = new Date(medicamento.inicio_medicacao);
+    } else {
+      return "Não iniciou";
+    }
+
+    try {
+      // 2. Adiciona a frequência (em horas) à data de referência
+      const horasParaAdicionar = parseInt(medicamento.frequencia);
+      const proximaDoseData = new Date(
+        dataReferencia.getTime() + horasParaAdicionar * 60 * 60 * 1000,
+      );
+
+      // 3. Formata a exibição
+      const agora = new Date();
+      const eHoje =
+        proximaDoseData.toLocaleDateString() === agora.toLocaleDateString();
+
+      return proximaDoseData.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        day: eHoje ? undefined : "2-digit",
+        month: eHoje ? undefined : "2-digit",
+      });
+    } catch (error) {
+      console.log("Erro no cálculo:", error);
+      return "---";
+    }
+  };
 
   const loadMedicacoes = async () => {
     try {
       const response = await api.get("medicamentos");
       setMeds(response.data);
     } catch (error) {
-      console.log("Erro ao buscar medicamentos:", error);
+      console.log("Erro meds:", error);
     }
   };
-  useEffect(() => {
-    loadMedicacoes();
-    medicamentosTomados();
-    loadHistorico();
-  }, []);
 
   const loadHistorico = async () => {
     try {
       const response = await api.get("historico/todos");
-      console.log("Dados Carregados:", response.data);
       setHist(response.data);
     } catch (error) {
-      console.log(error);
+      console.log("Erro hist:", error);
     }
   };
 
-  const medicamentosTomados = async () => {
-    try {
-      const response = await api.get("historico/todos");
-      setHist(response.data);
-    } catch (error) {
-      console.log("Erro ao buscar dosagens:", error);
-    }
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([loadMedicacoes(), loadHistorico()]);
+    setRefreshing(false);
   };
+
   useEffect(() => {
-    if (tab === "tomados") {
-      medicamentosTomados();
-    }
+    onRefresh();
   }, []);
 
   async function marcarComoTomado(id) {
     try {
       await api.post(`/medicamentosHist/${id}`);
-
-      Alert.alert("Sucesso");
-      await loadMedicacoes();
-
-      const resHist = await api.get("medicamentos");
-      setHist(resHist.data);
-
-      if (tab === "tomados") {
-        const response = await api.get("historico/todos");
-        setHist(response.data);
-      }
+      Alert.alert("Sucesso", "Dose registrada!");
+      onRefresh();
     } catch (error) {
       console.log(error);
     }
   }
+
   async function deletarMedicacao(id) {
-    Alert.alert("Excluir", "Deseja excluir este medicamento?", [
-      { text: "Cancelar" },
+    Alert.alert("Excluir", "Deseja excluir?", [
+      { text: "Não" },
       {
         text: "Sim",
         onPress: async () => {
-          try {
-            // Use CRASE (`) para que o ${id} funcione corretamente
-            await api.delete(`/medicamentosApagar/${id}`);
-            loadMedicacoes(); // Recarrega a lista após apagar
-          } catch (error) {
-            console.log(
-              "Erro ao deletar:",
-              error.response?.data || error.message,
-            );
-          }
+          await api.delete(`/medicamentosApagar/${id}`);
+          loadMedicacoes();
         },
       },
     ]);
   }
-  // 🔍 Filtro para a aba de histórico
-  const ultimosTomados = meds.filter((m) => {
-    // Verifica se existe algum registro no array 'hist' para este medicamento
-    const jaFoiTomado = hist.some((h) => h.id_medicacao === m.id_medicacao);
 
-    const matchesSearch = m.nome_medicacao
-      ?.toLowerCase()
-      .includes(search.toLowerCase());
-
-    return jaFoiTomado && matchesSearch;
-  });
-
-  // 🔍 filtro + busca
   const filteredMeds = meds.filter((m) =>
     m.nome_medicacao?.toLowerCase().includes(search.toLowerCase()),
   );
@@ -196,25 +205,17 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Header />
 
-      {/* Localização */}
-      <View style={styles.locRow}>
-        <Ionicons name="location-outline" size={15} color={colors.primary} />
-        <Text style={styles.locText}>Viçosa</Text>
-      </View>
-
-      {/* Busca */}
+      {/* Busca e Tabs (Omitidos aqui para brevidade, mantenha os seus) */}
       <View style={styles.searchBox}>
         <Ionicons name="search" size={16} color={colors.textMuted} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Pesquisar medicamento"
-          placeholderTextColor={colors.textMuted}
+          placeholder="Pesquisar..."
           value={search}
           onChangeText={setSearch}
         />
       </View>
 
-      {/* Tabs */}
       <View style={styles.tabs}>
         <TouchableOpacity
           style={[styles.tab, tab === "ativos" && styles.tabActive]}
@@ -226,7 +227,6 @@ export default function HomeScreen() {
             ATIVOS
           </Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={[styles.tab, tab === "tomados" && styles.tabActive]}
           onPress={() => setTab("tomados")}
@@ -234,58 +234,40 @@ export default function HomeScreen() {
           <Text
             style={[styles.tabText, tab === "tomados" && styles.tabTextActive]}
           >
-            TOMADO
+            TOMADOS
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Lista */}
-      <ScreenWrapper onRefreshAction={atualizarTudo}>
-
-      <FlatList
-        data={tab === "ativos" ? filteredMeds : hist}
-        keyExtractor={(item) => String(item.id_historico || item.id_medicacao)}
-        ListEmptyComponent={() => (
-          <View style={{ alignItems: "center", marginTop: 50 }}>
-            <Text style={{ color: colors.textMuted }}>
-              Nao há medicamentos {tab === "ativos" ? "cadastrados" : "tomados"}
-              .
-            </Text>
-          </View>
-        )}
-        renderItem={({ item }) => {
-          if (tab === "ativos") {
-            return (
+      <ScreenWrapper refreshing={refreshing} onRefreshAction={onRefresh}>
+        {tab === "ativos"
+          ? filteredMeds.map((item) => (
               <MedCard
-              med={item}
-              onDelete={deletarMedicacao}
-              onCheck={marcarComoTomado}
+                key={item.id_medicacao}
+                med={item}
+                onDelete={deletarMedicacao}
+                onCheck={marcarComoTomado}
+                proximaDose={getProximaDose(item)}
               />
-            );
-          } else {
-            const dadosMed = meds.find(
-              (m) => String(m.id_medicacao) === String(item.id_medicacao),
-            );
-            
-            return (
-              <Tomados
-              hist={item}
-              med={
-                dadosMed || {
-                  nome_medicacao: "Medicamento não encontrado...",
-                }
-              }
-              />
-            );
-          }
-        }}
-      />
- </ScreenWrapper>
-
+            ))
+          : hist.map((item) => {
+              const dadosMed = meds.find(
+                (m) => String(m.id_medicacao) === String(item.id_medicacao),
+              );
+              return (
+                <Tomados
+                  key={item.id_historico}
+                  hist={item}
+                  med={dadosMed || { nome_medicacao: "Removido" }}
+                />
+              );
+            })}
+      </ScreenWrapper>
     </View>
   );
 }
 
+// ... (Mantenha seus styles originais)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -419,6 +401,16 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 15,
     backgroundColor: colors.error,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  addBtn: {
+    alignContent: "center",
+    width: 52,
+    height: 52,
+    borderRadius: 30,
+    backgroundColor: colors.secondary,
     justifyContent: "center",
     alignItems: "center",
   },

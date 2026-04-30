@@ -6,7 +6,9 @@ module.exports = {
   // ✅ REGISTRO
   async registrar(req, res) {
     try {
-      const { nome, email, senha, data, raca, genero, telefone } = req.body;
+      console.log("--> DADOS CHEGANDO NO BACKEND:", req.body); // ADICIONE ESTA LINHA
+      const { nome, email, senha, data, raca, genero, telefone, comorbidades } =
+        req.body;
 
       if (!nome || !email || !senha) {
         return res
@@ -35,6 +37,7 @@ module.exports = {
         raca,
         genero,
         telefone,
+        comorbidades,
       });
 
       console.log(">>> NOVO USUÁRIO CADASTRADO:", emailLimpo);

@@ -44,7 +44,11 @@ export default function LoginScreen({ navigation }) {
       // 2. Salvando o token (com try/catch para evitar o erro de Native Module)
       try {
         if (token) {
-          await AsyncStorage.setItem("token", token);
+          await AsyncStorage.setItem("token", response.data.token);
+          await AsyncStorage.setItem(
+            "user",
+            JSON.stringify(response.data.user),
+          );
         }
       } catch (storageError) {
         console.log("Erro ao salvar no AsyncStorage:", storageError);

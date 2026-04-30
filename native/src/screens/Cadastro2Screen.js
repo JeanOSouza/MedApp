@@ -23,13 +23,14 @@ export default function Cadastro2Screen({ navigation }) {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [comorbidades, setComorbidades] = useState("");
   const [telefone, setTelefone] = useState("");
   const [termos, setTermos] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleFinalizar() {
     // 1. Validações
-    if (!email || !senha || !telefone) {
+    if (!email || !senha || !telefone || !comorbidades) {
       Alert.alert("Erro", "Preencha todos os campos.");
       return;
     }
@@ -47,6 +48,7 @@ export default function Cadastro2Screen({ navigation }) {
         email: email.toLowerCase().trim(),
         senha: senha,
         telefone: telefone,
+        comorbidades: comorbidades,
       };
 
       // 3. Chamada ao Backend
@@ -85,6 +87,12 @@ export default function Cadastro2Screen({ navigation }) {
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <Input
+          label="Comorbidades"
+          value={comorbidades}
+          onChangeText={setComorbidades}
           autoCapitalize="none"
         />
         <Input

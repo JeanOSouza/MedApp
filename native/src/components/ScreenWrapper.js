@@ -1,6 +1,6 @@
 // components/ScreenWrapper.js
-import React, { useState, useCallback } from 'react';
-import { ScrollView, RefreshControl, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from "react";
+import { ScrollView, RefreshControl, StyleSheet } from "react-native";
 
 export default function ScreenWrapper({ children, onRefreshAction }) {
   const [refreshing, setRefreshing] = useState(false);
@@ -17,9 +17,9 @@ export default function ScreenWrapper({ children, onRefreshAction }) {
     <ScrollView
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl 
-          refreshing={refreshing} 
-          onRefresh={handleRefresh} 
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
           tintColor="#2196F3" // Cor do carregamento
         />
       }

@@ -1,8 +1,9 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// O Expo lê automaticamente variáveis que começam com EXPO_PUBLIC_
 const api = axios.create({
-  baseURL: "http://172.20.10.6:3000/api",
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
 });
 
 api.interceptors.request.use(async (config) => {

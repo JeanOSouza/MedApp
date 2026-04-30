@@ -7,21 +7,15 @@ import Logo from "./Logo";
 export default function Header() {
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
-        <Ionicons name="menu" size={24} color={colors.primary} />
-      </TouchableOpacity>
-      <Logo size="sm" />
+      <Logo size="md" />
       <View style={styles.right}>
         <TouchableOpacity>
           <Ionicons
             name="notifications-outline"
-            size={22}
+            size={25}
             color={colors.primary}
           />
         </TouchableOpacity>
-        <View style={styles.avatar}>
-          <Ionicons name="person" size={14} color="#fff" />
-        </View>
       </View>
     </View>
   );

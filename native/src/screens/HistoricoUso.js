@@ -22,7 +22,11 @@ export default function HistoricoUso() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.md,
+  },
   scroll: { flex: 1, paddingHorizontal: spacing.md },
   title: {
     fontSize: 20,

@@ -6,7 +6,8 @@ const bcrypt = require("bcryptjs");
 module.exports = {
   async create(req, res) {
     try {
-      const { nome, email, senha } = req.body;
+      const { nome, email, senha, data, raca, genero, telefone, comorbidades } =
+        req.body;
 
       if (!nome || !email || !senha) {
         return res.status(400).json({
@@ -29,6 +30,11 @@ module.exports = {
         nome,
         email: emailLimpo,
         senha: senhaHash,
+        data_nascimento: data, // Mapeando 'data' para 'data_nascimento'
+        raca,
+        genero,
+        telefone,
+        comorbidades,
       });
 
       res.status(201).json(user);
@@ -99,11 +105,10 @@ module.exports = {
     }
   },
 
-  // 🔹 UPDATE
   async update(req, res) {
     try {
       const id = req.params.id;
-      const { nome, email, senha, idade, comorbidades } = req.body;
+      const { nome, email, telefone, comorbidades } = req.body;
 
       let senhaHash = senha;
 
@@ -112,7 +117,7 @@ module.exports = {
       }
 
       await User.update(
-        { nome, email, senha: senhaHash, idade, comorbidades },
+        { nome, email, telefone, comorbidades },
         { where: { id_usuario: id } },
       );
 

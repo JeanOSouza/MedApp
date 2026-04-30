@@ -1,11 +1,12 @@
 import React from "react";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { TouchableOpacity, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, radius } from "../theme";
+import { colors } from "../theme";
 
+// Importações das Telas
 import SplashScreen from "../screens/SplashScreen";
 import LoginScreen from "../screens/LoginScreen";
 import CadastroScreen from "../screens/CadastroScreen";
@@ -13,21 +14,25 @@ import Cadastro2Screen from "../screens/Cadastro2Screen";
 import HomeScreen from "../screens/HomeScreen";
 import HistoricoScreen from "../screens/HistoricoScreen";
 import CadastroMedicamentoScreen from "../screens/CadastroMedicamentoScreen";
-import CalendarioScreen from "../screens/CalendarioScreen";
-import MedicamentosAtuaisScreen from "../screens/MedicamentosAtuaisScreen";
-import HistoricoUso from "../screens/HistoricoUso";
-
+import PerfilScreen from "../screens/Perfil";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function AddButton({ onPress }) {
   return (
-    <TouchableOpacity style={styles.addBtn} onPress={onPress}>
-      <Ionicons name="add" size={28} color="#fff" />
-    </TouchableOpacity>
+    <View style={styles.addContainer}>
+      <TouchableOpacity
+        style={styles.addBtn}
+        onPress={onPress}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="add" size={30} color="#fff" />
+      </TouchableOpacity>
+    </View>
   );
 }
 
+// --- NAVEGAÇÃO POR TABS ---
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -61,24 +66,12 @@ function MainTabs() {
         name="AddMed"
         component={CadastroMedicamentoScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="plus" size={size} color={color} />
-          ),
-          tabBarButton: (props) => <AddButton onPress={props.onPress} />,
+          tabBarButton: (props) => <AddButton {...props} />,
         }}
       />
       <Tab.Screen
-        name="Calendario"
-        component={CalendarioScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Perfil"
-        component={MedicamentosAtuaisScreen}
+        name="PerfilTab"
+        component={PerfilScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
@@ -89,6 +82,7 @@ function MainTabs() {
   );
 }
 
+// --- NAVEGADOR PRINCIPAL ---
 export default function AppNavigator() {
   return (
     <NavigationContainer>
@@ -98,30 +92,37 @@ export default function AppNavigator() {
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="Cadastro2" component={Cadastro2Screen} />
         <Stack.Screen name="MainTabs" component={MainTabs} />
-        <Stack.Screen
-          name="MedicamentosTomados"
-          component={MedicamentosAtuaisScreen}
-        />
+        <Stack.Screen name="Perfil" component={PerfilScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
+// --- ESTILOS ---
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "#fff",
-
     height: 70,
-    paddingBottom: 8,
-    paddingTop: 8,
-    elevation: 8,
+    borderTopWidth: 0,
+    elevation: 10, // Sombra Android
+    shadowColor: "#000", // Sombra iOS
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    paddingBottom: 10,
+  },
+  addContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // O pulo do gato está aqui:
+    bottom: 8, // Eleva o container inteiro
   },
   addBtn: {
-    alignContent: "center",
-    width: 52,
-    height: 52,
-    borderRadius: 30,
-    backgroundColor: colors.secondary,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.secondary, // Certifique-se que colors.secondary é o seu verde
     justifyContent: "center",
     alignItems: "center",
   },

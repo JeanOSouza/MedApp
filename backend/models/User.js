@@ -37,7 +37,7 @@ const User = conn.define("User", {
     type: DataTypes.STRING,
   },
   comorbidades: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
   },
 });
 
