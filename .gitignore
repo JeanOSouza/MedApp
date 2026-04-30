@@ -6,6 +6,9 @@ npm-debug.*
 *.p12
 *.key
 *.mobileprovision
+backend/database.db
+backend/*.db
+backend/*.sqlite
 
 # Variáveis de ambiente (Adicione aqui)
 .env
