@@ -13,7 +13,6 @@ import Cadastro2Screen from '../screens/Cadastro2Screen';
 import HomeScreen from '../screens/HomeScreen';
 import HistoricoScreen from '../screens/HistoricoScreen';
 import CadastroMedicamentoScreen from '../screens/CadastroMedicamentoScreen';
-import CalendarioScreen from '../screens/CalendarioScreen';
 import MedicamentosAtuaisScreen from '../screens/MedicamentosAtuaisScreen';
 import MedicamentosTonadosScreen from '../screens/MedicamentosTonadosScreen';
 
@@ -45,8 +44,6 @@ function MainTabs() {
         options={{ tabBarIcon: ({ color, size }) => <Ionicons name="document-text-outline" size={size} color={color} /> }} />
       <Tab.Screen name="AddMed" component={CadastroMedicamentoScreen}
         options={{ tabBarIcon: () => null, tabBarButton: (props) => <AddButton onPress={props.onPress} /> }} />
-      <Tab.Screen name="Calendario" component={CalendarioScreen}
-        options={{ tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" size={size} color={color} /> }} />
       <Tab.Screen name="Perfil" component={MedicamentosAtuaisScreen}
         options={{ tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} /> }} />
     </Tab.Navigator>
