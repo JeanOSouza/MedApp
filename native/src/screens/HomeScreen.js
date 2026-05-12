@@ -25,54 +25,67 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// --- COMPONENTE DO CARD DE MEDICAMENTO ATIVO ---
-function MedCard({ med, onDelete, onCheck, proximaDose }) {
+function MedCard({ med, onDelete, onCheck, proximaDose, navigation }) {
   return (
-    <View style={[styles.card, med.status === "atrasado" && styles.cardHL]}>
-      <View style={styles.cardRow}>
-        <View style={styles.img}>
-          <Ionicons name="medical" size={22} color={colors.primary} />
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() =>
+        navigation.navigate("DescricaoRemedio", {
+          medicamento: med,
+        })
+      }
+    >
+      <View style={[styles.card, med.status === "atrasado" && styles.cardHL]}>
+        <View style={styles.cardRow}>
+          <View style={styles.img}>
+            <Ionicons name="medical" size={22} color={colors.primary} />
+          </View>
+
+          <View style={styles.info}>
+            <Text style={styles.medName}>{med.nome_medicacao}</Text>
+
+            <Text style={styles.medDesc}>
+              {med.dosagem} - {med.descricao}
+            </Text>
+
+            <Text
+              style={[
+                styles.medDesc,
+                {
+                  fontWeight: "500",
+                  color: "#255803",
+                  textAlign: "left",
+                },
+              ]}
+            >
+              Próxima: {proximaDose}
+            </Text>
+
+            {med.status === "atrasado" && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>Atrasado</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        <View style={styles.info}>
-          <Text style={styles.medName}>{med.nome_medicacao}</Text>
-          <Text style={styles.medDesc}>
-            {med.dosagem} - {med.descricao}
-          </Text>
-
-          <Text
-            style={[
-              styles.medDesc,
-              { fontWeight: "500", color: "#255803", textAlign: "left" },
-            ]}
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={styles.btnGreen}
+            onPress={() => onCheck(med.id_medicacao)}
           >
-            Próxima: {proximaDose}
-          </Text>
+            <Ionicons name="checkmark" size={16} color="#fff" />
+          </TouchableOpacity>
 
-          {med.status === "atrasado" && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Atrasado</Text>
-            </View>
-          )}
+          <TouchableOpacity
+            style={styles.btnRed}
+            onPress={() => onDelete(med.id_medicacao)}
+          >
+            <Ionicons name="close" size={16} color="#fff" />
+          </TouchableOpacity>
         </View>
       </View>
-
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.btnGreen}
-          onPress={() => onCheck(med.id_medicacao)}
-        >
-          <Ionicons name="checkmark" size={16} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.btnRed}
-          onPress={() => onDelete(med.id_medicacao)}
-        >
-          <Ionicons name="close" size={16} color="#fff" />
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -100,7 +113,7 @@ function Tomados({ hist, med }) {
   );
 }
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const [tab, setTab] = useState("ativos");
   const [search, setSearch] = useState("");
   const [meds, setMeds] = useState([]);
@@ -317,6 +330,7 @@ export default function HomeScreen() {
                 onDelete={deletarMedicacao}
                 onCheck={marcarComoTomado}
                 proximaDose={getProximaDose(item)}
+                navigation={navigation}
               />
             ))
           : hist.map((item) => {

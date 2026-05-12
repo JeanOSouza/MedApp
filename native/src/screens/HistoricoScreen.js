@@ -24,7 +24,8 @@ function CartaoHistorico({ medCad, onPress }) {
             <Text style={styles.medName}>Nome: {medCad.nome_medicacao}</Text>
             <Text style={styles.medDesc}>Dosagem: {medCad.dosagem}</Text>
             <Text style={styles.medFreq}>
-              Tomar a cada {medCad.frequencia} horas
+              Tomar a cada {""} {medCad.frequencia}{" "}
+              {medCad.frequencia >= 2 ? "horas" : "hora"}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
@@ -70,6 +71,8 @@ export default function HistoricoScreen() {
   return (
     <View style={styles.container}>
       <Header />
+
+      <Text style={styles.title}>Ultimos Tomados</Text>
 
       {/* Caixa de Busca */}
       <View style={styles.searchContainer}>
@@ -123,6 +126,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  title: {
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.primary,
+    marginBottom: 8,
   },
   searchContainer: {
     paddingHorizontal: spacing.md,

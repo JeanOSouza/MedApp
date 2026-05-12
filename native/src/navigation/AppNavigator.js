@@ -15,6 +15,8 @@ import HomeScreen from "../screens/HomeScreen";
 import HistoricoScreen from "../screens/HistoricoScreen";
 import CadastroMedicamentoScreen from "../screens/CadastroMedicamentoScreen";
 import PerfilScreen from "../screens/Perfil";
+import HistoricoMedicamentoScreen from "../screens/DescricaoRemedio";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -93,6 +95,10 @@ export default function AppNavigator() {
         <Stack.Screen name="Cadastro2" component={Cadastro2Screen} />
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="Perfil" component={PerfilScreen} />
+        <Stack.Screen
+          name="DescricaoRemedio"
+          component={HistoricoMedicamentoScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
