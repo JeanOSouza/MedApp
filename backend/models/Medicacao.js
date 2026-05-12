@@ -28,15 +28,15 @@ const Medicacao = conn.define("medicacao", {
   },
   primeiraDose: {
     type: DataTypes.DATE,
-    alownull: false,
+    allownull: false,
   },
   frequencia: {
     type: DataTypes.INTEGER,
-    alownull: false,
+    allownull: false,
   },
   dataInicio: {
     type: DataTypes.DATE,
-    alownull: false,
+    allownull: false,
   },
   status: {
     type: DataTypes.BOOLEAN,
