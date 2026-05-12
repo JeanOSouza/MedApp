@@ -1,19 +1,26 @@
-
-# native/.gitignore
+# Dependências (Nunca subir, cada um instala as suas com npm install)
 node_modules/
-.expo/
-npm-debug.*
-*.jks
-*.p12
-*.key
-*.mobileprovision
-backend/database.db
-backend/*.db
-backend/*.sqlite
 
-# Variáveis de ambiente (Adicione aqui)
+# Pastas nativas do Android e iOS (Geradas pelo Expo Prebuild)
+android/
+ios/
+
+# Configurações do Expo e Logs
+.expo/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de sistema e editores
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Banco de dados Local (Opcional: se quiser que cada um tenha o seu banco zerado)
+*.db
+*.sqlite
+
+# Variáveis de ambiente (Segurança: senhas e chaves de API)
 .env
-=======
-node_modules/
-.expo/
-.expo/
