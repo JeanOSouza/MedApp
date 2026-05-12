@@ -1,8 +1,18 @@
-const { Sequelize } = require("sequelize")
+const { Sequelize } = require("sequelize");
 
-const conn = new Sequelize({
-  dialect: "sqlite",
-  storage: "./database.db"
-})
+const sequelize = process.env.DATABASE_URL
+  ? new Sequelize(process.env.DATABASE_URL, {
+      dialect: "postgres",
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
+    })
+  : new Sequelize({
+      dialect: "sqlite",
+      storage: "./database.db",
+    });
 
-module.exports = conn
+module.exports = sequelize;

@@ -7,47 +7,45 @@ const Medicacao = conn.define("medicacao", {
     autoIncrement: true,
     primaryKey: true,
   },
+
   nome_medicacao: {
     type: DataTypes.STRING,
     allowNull: false,
   },
+
   dosagem: {
     type: DataTypes.STRING,
-    allowNull: true,
   },
+
   descricao: {
     type: DataTypes.STRING,
-    allowNull: true,
   },
+
   id_usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+
   inicio_medicacao: {
     type: DataTypes.DATE,
   },
+
   primeiraDose: {
     type: DataTypes.DATE,
-    allownull: false,
   },
+
   frequencia: {
     type: DataTypes.INTEGER,
-    allownull: false,
+    allowNull: false,
   },
+
   dataInicio: {
     type: DataTypes.DATE,
-    allownull: false,
   },
+
   status: {
     type: DataTypes.BOOLEAN,
   },
 });
-
-//associar medicações e historico
-Medicacao.associate = (models) => {
-  // Um medicamento tem muitas doses registradas
-  Medicacao.belongsTo(models.User, { foreignKey: "id_usuario" });
-  Medicacao.hasMany(models.HistoricoMed, { foreignKey: "id_medicacao" });
-};
 
 module.exports = Medicacao;

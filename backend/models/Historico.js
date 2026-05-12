@@ -12,22 +12,17 @@ const HistoricoMed = conn.define("historico_med", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  // Data e hora da toma da medicação
+
   data_tomada: {
     type: DataTypes.DATE,
     allowNull: false,
     defaultValue: DataTypes.NOW,
   },
-  // Para futuras observações (opcional)
+
   observacao: {
     type: DataTypes.STRING,
     allowNull: true,
   },
 });
-
-HistoricoMed.associate = (models) => {
-  // O histórico pertence a uma medicação
-  HistoricoMed.belongsTo(models.Medicacao, { foreignKey: "id_medicacao" });
-};
 
 module.exports = HistoricoMed;
