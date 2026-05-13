@@ -1,7 +1,7 @@
 {
   "name": "back-medapp",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
     "pacotes": "express sqlite3 nodemon cors sequelize jsonwebtoken bcryptjs",
