@@ -1,41 +1,44 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
-
 const conn = require("./database/conn");
+
+// Importar Modelos
+require("./models/User");
+require("./models/Medicacao");
+require("./models/Historico");
 require("./models/associacoes");
 
-// IMPORTAR AS ROTAS
+// Importar Rotas
 const userRoutes = require("./routes/userRoutes");
 const medicacaoRoutes = require("./routes/medicacaoRoutes");
 const authRoutes = require("./routes/authRoutes");
 const historicoRoutes = require("./routes/historicoRoutes");
 
+const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// USAR AS ROTAS
-app.use("/api", userRoutes);
-app.use("/api", medicacaoRoutes);
-app.use("/api", authRoutes);
-app.use("/api", historicoRoutes);
-
-// Rota de teste para ver se a API está online
-app.get("/", (req, res) => {
-  res.send("API do MedApp rodando na Vercel!");
+// ROTA DE TESTE (Acesse: https://medapp-backend.vercel.app/check)
+app.get("/check", (req, res) => {
+  res.json({ status: "Online", message: "Backend MedApp respondendo!" });
 });
 
-// AJUSTE PARA VERCEL: O servidor não deve "ouvir" uma porta fixa
-// A Vercel gerencia as portas automaticamente.
-if (process.env.NODE_ENV !== "production") {
-  const PORT = 3000;
-  conn.sync().then(() => {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Servidor local rodando na porta ${PORT}`);
-    });
-  });
-}
+// ROTA DE SETUP DO BANCO (Acesse: https://medapp-backend.vercel.app/setup)
+app.get("/setup", async (req, res) => {
+  try {
+    await conn.authenticate();
+    await conn.sync({ alter: true });
+    res.json({ status: "Sucesso", message: "Tabelas sincronizadas no Neon!" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// Exportar o app para a Vercel
+app.use("/api/users", userRoutes); // Para registro/perfil
+app.use("/api/meds", medicacaoRoutes); // Para cadastrar remédios
+app.use("/api/auth", authRoutes); // APENAS para Login/Logout
+app.use("/api/historico", historicoRoutes);
+
 module.exports = app;

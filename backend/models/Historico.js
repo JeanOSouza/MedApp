@@ -1,28 +1,26 @@
-const conn = require("../database/conn");
+const conn = require("../database/conn"); // Importe no topo!
 const { DataTypes } = require("sequelize");
 
-const HistoricoMed = conn.define("historico_med", {
-  id_historico: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
+const HistoricoMed = conn.define(
+  "historico_med",
+  {
+    id_historico: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    id_medicacao: { type: DataTypes.INTEGER, allowNull: false },
+    data_tomada: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    observacao: { type: DataTypes.STRING, allowNull: true },
   },
-
-  id_medicacao: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+  {
+    freezeTableName: true,
+    tableName: "historico_meds",
   },
-
-  data_tomada: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW,
-  },
-
-  observacao: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-});
+);
 
 module.exports = HistoricoMed;
