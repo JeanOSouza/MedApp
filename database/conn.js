@@ -1,8 +1,9 @@
 const { Sequelize } = require("sequelize");
-require("pg"); // força o carregamento do pg
+const pg = require("pg");
 
 const conn = new Sequelize(process.env.DATABASE_URL, {
   dialect: "postgres",
+  dialectModule: pg,
   dialectOptions: {
     ssl: { require: true, rejectUnauthorized: false },
   },
